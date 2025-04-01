@@ -3,6 +3,7 @@ package dereck.angeles.controller;
 import dereck.angeles.dto.TopicDto;
 import dereck.angeles.model.Topic;
 import dereck.angeles.repository.TopicRepository;
+import dereck.angeles.service.TopicService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
@@ -16,26 +17,17 @@ import java.util.stream.Collectors;
 @Path("/topics")
 public class TopicController {
 
+	private final TopicService topicService;
+
 	@Inject
-	TopicRepository topicRepository;
+	public TopicController(TopicService topicService) {
+		;
+		this.topicService = topicService;
+	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public List<TopicDto> getAllTopics() {
-		List<Topic> topics = topicRepository.listAll();
-		return topics.stream()
-								 .map(this::toDto)
-								 .collect(Collectors.toList());
-	}
-
-	private TopicDto toDto(Topic topic) {
-		return new TopicDto(
-					topic.getId(),
-					topic.getName(),
-					topic.getDescription(),
-					topic.getCreatedAt(),
-					topic.getUpdatedAt()
-		);
+	public List<TopicDto> getTopics() {
+		return topicService.getTopics();
 	}
 }
