@@ -1,9 +1,6 @@
 package dereck.angeles.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -26,6 +23,7 @@ public class Difficulty {
 	@Size(max = 50)
 	@NotNull
 	@Column(name = "level", nullable = false, length = 50)
+	@Enumerated(EnumType.STRING)
 	private DifficultyLevel level;
 
 	@Column(name = "description", length = Integer.MAX_VALUE)

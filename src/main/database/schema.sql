@@ -14,6 +14,7 @@ CREATE TABLE users
     image           TEXT,
     role            AuthRole NOT NULL DEFAULT 'USER',
     username        VARCHAR(100) UNIQUE,
+    password        TEXT,
     created_at      TIMESTAMP         DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
@@ -81,7 +82,8 @@ CREATE TABLE difficulties
 (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     level       VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
+    description TEXT,
+    years_of_experience int8
 );
 
 -- Tabla questions (preguntas de entrevistas)
