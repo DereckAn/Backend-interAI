@@ -4,6 +4,8 @@ import dereck.angeles.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -13,19 +15,21 @@ public class UserRepository {
 	EntityManager entityManager;
 
 	public User findByEmail(String email) {
-		return entityManager
+		List<User> users = entityManager
 					.createQuery("SELECT u FROM User u WHERE u.email = :email",
 											 User.class)
 					.setParameter("email", email)
-					.getSingleResult();
+					.getResultList();
+		return users.isEmpty() ? null : users.get(0);
 	}
 
 	public User findByUsername(String username) {
-		return entityManager
+		List<User> users = entityManager
 					.createQuery("SELECT u FROM User u WHERE u.username = :username",
 											 User.class)
 					.setParameter("username", username)
-					.getSingleResult();
+					.getResultList();
+		return users.isEmpty() ? null : users.get(0);
 	}
 
 	public User findById(UUID id) {

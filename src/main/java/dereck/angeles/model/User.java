@@ -17,8 +17,8 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
 	@Id
-	@ColumnDefault("uuid_generate_v4()")
 	@Column(name = "id", nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
 	@Size(max = 255)
@@ -32,7 +32,8 @@ public class User {
 	@Column(name = "\"emailVerified\"")
 	private OffsetDateTime emailVerified;
 
-	@Column(name = "image", length = Integer.MAX_VALUE)
+	@Size(max = 1000)
+	@Column(name = "image", length = 1000)
 	private String image;
 
 	@Enumerated(EnumType.STRING)
