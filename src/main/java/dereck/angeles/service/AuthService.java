@@ -59,29 +59,34 @@ public class AuthService {
 
 		User user = userRepository.findByEmail(loginDto.email());
 		if (user == null) {
-			logger.warn("Login failed: User not found for email: {}", loginDto.email());
+			logger.warn("Login failed: User not found for email: {}",
+									loginDto.email());
 			throw new Exception("User not found");
 		}
 
-		logger.info("User found: ID={}, Username={}", user.getId(), user.getUsername());
+		logger.info("User found: ID={}, Username={}", user.getId(),
+								user.getUsername());
 
 		if (!BCrypt.checkpw(loginDto.password(), user.getPassword())) {
-			logger.warn("Login failed: Invalid password for user: {}", user.getUsername());
+			logger.warn("Login failed: Invalid password for user: {}",
+									user.getUsername());
 			throw new Exception("Invalid password");
 		}
 
-		logger.info("Password verification successful for user: {}", user.getUsername());
+		logger.info("Password verification successful for user: {}",
+								user.getUsername());
 		logger.info("password with hash: {}", user.getPassword());
 		logger.info("password without hash: {}", loginDto.password());
 		logger.info("are the password the same?: {}",
 								BCrypt.checkpw(loginDto.password(), user.getPassword()));
 
-		try{
-			String token = Jwt.issuer("dereckan-interback")
-												.subject(user.getEmail())
-												.groups(Set.of(user.getRole().toString()))
-												.expiresIn(Duration.ofHours(24))
-												.sign();
+		String token;
+		try {
+			token = Jwt.issuer("dereckan-interback")
+								 .subject(user.getId().toString())
+								 .groups(Set.of(user.getRole().toString()))
+								 .expiresIn(Duration.ofHours(24))
+								 .sign();
 			logger.info("Generating JWT token for user: {}", user.getUsername());
 		} catch (Exception e) {
 			logger.error("Error generating JWT token: {}", e.getMessage());
@@ -90,9 +95,10 @@ public class AuthService {
 
 //		logger.info("JWT token generated: {}", token);
 
-		logger.info("JWT token generated successfully for user: {}", user.getUsername());
+		logger.info("JWT token generated successfully for user: {}",
+								user.getUsername());
 
-		return new LoginResponse("token", user.getId().toString());
+		return new LoginResponse(token, user.getId().toString());
 	}
 
 	public User getUserById(UUID userId) {

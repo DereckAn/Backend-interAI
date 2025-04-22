@@ -46,15 +46,14 @@ public class AuthController {
 	@Path("/login")
 	public Response login(LoginDto loginDto) {
 		try {
-
 			AuthService.LoginResponse loginResponse = authService.login(loginDto);
 			NewCookie cookie = new NewCookie(
 						"jwt", loginResponse.getToken(),
 						"/", null,
 						"Authentication token",
-						24 * 60 * 60,
-						false,
-						true
+						24 * 60 * 60, // 24 hours
+						true,  // Secure: true for HTTPS
+						true   // HttpOnly: true
 			);
 			return Response.ok(new SuccessResponse("Login successful",
 																						 loginResponse.getUserId()))
@@ -163,6 +162,7 @@ public class AuthController {
 	static class SuccessResponse {
 		private String message;
 		private String userId;
+//		private String token;
 
 		public SuccessResponse(String message) {
 			this.message = message;
@@ -171,6 +171,7 @@ public class AuthController {
 		public SuccessResponse(String message, String userId) {
 			this.message = message;
 			this.userId = userId;
+//			this.token = token;
 		}
 
 	}
