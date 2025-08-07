@@ -1,3 +1,4 @@
+-- Initial schema creation
 -- Activar extensión para UUIDs (si usas PostgreSQL)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -144,7 +145,7 @@ CREATE TABLE feedback
     created_at          TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
 );
 
-    -- Tabla files (archivos de usuarios: currículums y descripciones de trabajo)
+-- Tabla files (archivos de usuarios: currículums y descripciones de trabajo)
 CREATE TABLE files
 (
     id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -166,61 +167,3 @@ CREATE TABLE resumes
     file_path   VARCHAR(255),
     uploaded_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO topics (name, description)
-VALUES ('Fullstack',
-        'Preguntas sobre desarrollo de aplicaciones que involucran tanto el frontend como el backend, utilizando tecnologías como React, Angular, Vue.js, Node.js, Django, y más.'),
-       ('Backend',
-        'Preguntas sobre desarrollo de la parte del servidor, incluyendo bases de datos, APIs, frameworks como Spring Boot, Express.js, y lenguajes como Java, Python, y PHP.'),
-       ('Frontend',
-        'Preguntas sobre desarrollo de interfaces de usuario, utilizando tecnologías como HTML, CSS, JavaScript, React, Angular, y Vue.js.'),
-       ('DevOps',
-        'Preguntas sobre la integración y despliegue continuo, gestión de infraestructura, herramientas como Docker, Kubernetes, Jenkins, y prácticas de DevOps.'),
-       ('Data Science',
-        'Preguntas sobre análisis de datos, estadísticas, visualización de datos, uso de herramientas como Python, R, y plataformas de análisis de datos.'),
-       ('Mobile',
-        'Preguntas sobre desarrollo de aplicaciones móviles, utilizando tecnologías como Android, iOS, Flutter, y React Native.'),
-       ('Machine Learning',
-        'Preguntas sobre algoritmos de aprendizaje automático, modelado de datos, uso de frameworks como TensorFlow, PyTorch, y Scikit-learn.'),
-       ('Algorithms',
-        'Preguntas sobre diseño y análisis de algoritmos, estructuras de datos, y problemas de programación competitiva.'),
-       ('System Design',
-        'Preguntas sobre diseño de sistemas escalables, arquitectura de software, bases de datos distribuidas, y diseño de microservicios.'),
-       ('Testing',
-        'Preguntas sobre pruebas de software, tipos de pruebas (unitarias, de integración, de aceptación), herramientas de testing, y estrategias de testing.'),
-       ('Cyber Security',
-        'Preguntas sobre seguridad informática, protección de datos, prevención de ataques, uso de herramientas de seguridad, y políticas de seguridad.'),
-       ('Cloud Computing',
-        'Preguntas sobre computación en la nube, servicios de AWS, Azure, Google Cloud, y prácticas de despliegue en la nube.'),
-       ('Blockchain',
-        'Preguntas sobre tecnología blockchain, criptomonedas, contratos inteligentes, y aplicaciones descentralizadas.'),
-       ('IoT',
-        'Preguntas sobre Internet de las cosas, dispositivos conectados, comunicación entre dispositivos, y plataformas de IoT.'),
-       ('AR/VR',
-        'Preguntas sobre realidad aumentada y virtual, desarrollo de aplicaciones AR/VR, y uso de tecnologías como Unity y Unreal Engine.'),
-       ('Quantum Computing',
-        'Preguntas sobre computación cuántica, algoritmos cuánticos, y aplicaciones de la computación cuántica.'),
-       ('Game Development',
-        'Preguntas sobre desarrollo de videojuegos, motores de juegos como Unity y Unreal Engine, diseño de juegos, y programación de juegos.');
-
-INSERT INTO languages (name)
-VALUES ('Java'),
-       ('Python'),
-       ('JavaScript'),
-       ('Ruby'),
-       ('C#'),
-       ('PHP'),
-       ('Go'),
-       ('Rust'),
-       ('Swift'),
-       ('Kotlin'),
-       ('TypeScript'),
-       ('Scala');
-
-INSERT INTO difficulties (level, description)
-VALUES ('Junior',
-        'Preguntas básicas y fundamentales para desarrolladores principiantes. Ideal para aquellos que están comenzando en el campo y necesitan construir una base sólida.'),
-       ('Mid-Level',
-        'Preguntas intermedias que requieren un conocimiento más profundo de los conceptos y herramientas. Ideal para desarrolladores con experiencia en proyectos prácticos.'),
-       ('Senior',
-        'Preguntas avanzadas y complejas para expertos en el campo. Ideal para aquellos que tienen años de experiencia y buscan desafíos técnicos más difíciles.');
