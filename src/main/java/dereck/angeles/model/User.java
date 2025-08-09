@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashSet;
@@ -37,12 +39,13 @@ public class User {
 	private String image;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role", nullable = false)
+	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Column(name = "role", nullable = false, columnDefinition = "authrole")
 	private AuthRole role = AuthRole.USER;
 
-	@Size(max = 100)
-	@Column(name = "username", unique = true, length = 100)
-	private String username;
+//	@Size(max = 100)
+//	@Column(name = "username", unique = true, length = 100)
+//	private String username;
 
 	@Column(name = "password")
 	private String password;

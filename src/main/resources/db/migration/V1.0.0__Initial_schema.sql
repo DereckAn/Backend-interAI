@@ -14,7 +14,6 @@ CREATE TABLE users
     "emailVerified" TIMESTAMPTZ,
     image           TEXT,
     role            AuthRole NOT NULL DEFAULT 'USER',
-    username        VARCHAR(100) UNIQUE,
     password        TEXT,
     created_at      TIMESTAMP         DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)

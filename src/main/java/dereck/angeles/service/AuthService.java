@@ -37,14 +37,9 @@ public class AuthService {
 			throw new Exception("Email already registered");
 		}
 
-		if (userRepository.findByUsername(registerDto.username()) != null) {
-			throw new Exception("Username already taken");
-		}
-
 		User user = new User();
 		user.setName(registerDto.name());
 		user.setEmail(registerDto.email());
-		user.setUsername(registerDto.username());
 		user.setPassword(BCrypt.hashpw(registerDto.password(), BCrypt.gensalt()));
 		user.setRole(User.AuthRole.USER);
 		user.setCreatedAt(Instant.now());
@@ -64,17 +59,14 @@ public class AuthService {
 			throw new Exception("User not found");
 		}
 
-		logger.info("User found: ID={}, Username={}", user.getId(),
-								user.getUsername());
-
 		if (!BCrypt.checkpw(loginDto.password(), user.getPassword())) {
 			logger.warn("Login failed: Invalid password for user: {}",
-									user.getUsername());
+									user.getName());
 			throw new Exception("Invalid password");
 		}
 
 		logger.info("Password verification successful for user: {}",
-								user.getUsername());
+								user.getName());
 		logger.info("password with hash: {}", user.getPassword());
 		logger.info("password without hash: {}", loginDto.password());
 		logger.info("are the password the same?: {}",
@@ -87,7 +79,7 @@ public class AuthService {
 								 .groups(Set.of(user.getRole().toString()))
 								 .expiresIn(Duration.ofHours(24))
 								 .sign();
-			logger.info("Generating JWT token for user: {}", user.getUsername());
+			logger.info("Generating JWT token for user: {}", user.getName());
 		} catch (Exception e) {
 			logger.error("Error generating JWT token: {}", e.getMessage());
 			throw new Exception("Error generating JWT token");
@@ -96,7 +88,7 @@ public class AuthService {
 //		logger.info("JWT token generated: {}", token);
 
 		logger.info("JWT token generated successfully for user: {}",
-								user.getUsername());
+								user.getName());
 
 		return new LoginResponse(token, user.getId().toString());
 	}

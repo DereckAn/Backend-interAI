@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "files")
@@ -18,7 +19,7 @@ public class File {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
     
     @Column(name = "original_filename", nullable = false)
     private String originalFilename;
@@ -39,8 +40,9 @@ public class File {
     @Column(name = "file_type", nullable = false)
     private FileType fileType;
     
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @Column(name = "upload_date", nullable = false)
     private LocalDateTime uploadDate;

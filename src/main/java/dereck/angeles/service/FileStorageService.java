@@ -3,7 +3,9 @@ package dereck.angeles.service;
 import dereck.angeles.dto.FileDto;
 import dereck.angeles.dto.FileUploadResponseDto;
 import dereck.angeles.model.File;
+import dereck.angeles.model.User;
 import dereck.angeles.repository.FileRepository;
+import dereck.angeles.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,9 @@ public class FileStorageService {
 
     @Inject
     FileRepository fileRepository;
+    
+    @Inject
+    UserRepository userRepository;
 
     @Inject
     public S3Client s3Client;
@@ -85,6 +90,13 @@ public class FileStorageService {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fileInputStream, fileSize));
 
+            // Get user entity
+            UUID userUuid = UUID.fromString(userId);
+            User user = userRepository.findById(userUuid);
+            if (user == null) {
+                return FileUploadResponseDto.error("User not found");
+            }
+            
             // Save metadata to database
             File file = File.builder()
                     .originalFilename(originalFilename)
@@ -93,12 +105,12 @@ public class FileStorageService {
                     .fileSize(fileSize)
                     .bucketName(bucketName)
                     .fileType(fileType)
-                    .userId(userId)
+                    .user(user)
                     .build();
 
             fileRepository.persist(file);
 
-            String downloadUrl = generateDownloadUrl(file.getId());
+            String downloadUrl = generateDownloadUrl(file.getId().toString());
             FileDto fileDto = FileDto.fromEntity(file, downloadUrl);
 
             return FileUploadResponseDto.success(fileDto);
@@ -109,7 +121,8 @@ public class FileStorageService {
     }
 
     public Optional<File> getFileById(String fileId) {
-        return fileRepository.findByIdOptional(fileId);
+        UUID uuid = UUID.fromString(fileId);
+        return fileRepository.findByIdOptional(uuid);
     }
 
     public InputStream downloadFile(String storedFilename) {
@@ -123,7 +136,8 @@ public class FileStorageService {
 
     @Transactional
     public boolean deleteFile(String fileId) {
-        Optional<File> fileOptional = fileRepository.findByIdOptional(fileId);
+        UUID uuid = UUID.fromString(fileId);
+        Optional<File> fileOptional = fileRepository.findByIdOptional(uuid);
         
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
@@ -153,7 +167,7 @@ public class FileStorageService {
         return fileRepository.findByUserId(userId)
                 .stream()
                 .map(file -> {
-                    String downloadUrl = generateDownloadUrl(file.getId());
+                    String downloadUrl = generateDownloadUrl(file.getId().toString());
                     return FileDto.fromEntity(file, downloadUrl);
                 })
                 .toList();
@@ -163,7 +177,7 @@ public class FileStorageService {
         return fileRepository.findByUserIdAndFileType(userId, fileType)
                 .stream()
                 .map(file -> {
-                    String downloadUrl = generateDownloadUrl(file.getId());
+                    String downloadUrl = generateDownloadUrl(file.getId().toString());
                     return FileDto.fromEntity(file, downloadUrl);
                 })
                 .toList();

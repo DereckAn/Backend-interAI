@@ -16,12 +16,12 @@ public record FileDto(
 ) {
     public static FileDto fromEntity(File file, String downloadUrl) {
         return new FileDto(
-                file.getId(),
+                file.getId().toString(),
                 file.getOriginalFilename(),
                 file.getContentType(),
                 file.getFileSize(),
                 file.getFileType(),
-                file.getUserId(),
+                file.getUser().getId().toString(),
                 file.getUploadDate(),
                 downloadUrl
         );

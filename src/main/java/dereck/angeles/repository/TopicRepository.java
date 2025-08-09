@@ -6,4 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class TopicRepository implements PanacheRepository<Topic> {
+    
+    public Topic findByName(String name) {
+        return find("name", name).firstResult();
+    }
 }

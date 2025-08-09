@@ -6,4 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class LanguageRepository implements PanacheRepository<Language>{
+    
+    public Language findByName(String name) {
+        return find("name", name).firstResult();
+    }
 }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.ColumnDefault;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class Difficulty {
 
 	public enum DifficultyLevel {
 		Junior,
+		@JsonProperty("Mid-Level")
 		MidLevel,
 		Senior
 	}

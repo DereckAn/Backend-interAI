@@ -133,7 +133,7 @@ public class FileController {
         File file = fileOptional.get();
         
         // Check if the file belongs to the authenticated user
-        if (!file.getUserId().equals(authenticatedUserId)) {
+        if (!file.getUser().getId().equals(authenticatedUserId)) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Access denied: file belongs to another user\"}")
                     .build();
@@ -299,7 +299,7 @@ public class FileController {
         }
         
         File file = fileOptional.get();
-        if (!file.getUserId().equals(authenticatedUserId)) {
+        if (!file.getUser().getId().equals(authenticatedUserId)) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Access denied: can only delete your own files\"}")
                     .build();
@@ -335,7 +335,7 @@ public class FileController {
         File file = fileOptional.get();
         
         // Check if the file belongs to the authenticated user
-        if (!file.getUserId().equals(authenticatedUserId)) {
+        if (!file.getUser().getId().equals(authenticatedUserId)) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("{\"error\": \"Access denied: file belongs to another user\"}")
                     .build();

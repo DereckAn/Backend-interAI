@@ -6,16 +6,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
-public class FileRepository implements PanacheRepositoryBase<File, String> {
+public class FileRepository implements PanacheRepositoryBase<File, UUID> {
     
     public List<File> findByUserId(String userId) {
-        return find("userId", userId).list();
+        UUID userUuid = UUID.fromString(userId);
+        return find("user.id", userUuid).list();
     }
     
     public List<File> findByUserIdAndFileType(String userId, File.FileType fileType) {
-        return find("userId = ?1 and fileType = ?2", userId, fileType).list();
+        UUID userUuid = UUID.fromString(userId);
+        return find("user.id = ?1 and fileType = ?2", userUuid, fileType).list();
     }
     
     public Optional<File> findByStoredFilename(String storedFilename) {

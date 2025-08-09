@@ -17,14 +17,35 @@ import java.util.UUID;
 @Table(name = "interviews")
 public class Interview {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "language_id")
     private Language language;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "difficulty_id")
+    private Difficulty difficulty;
+
+    @Column(name = "job_description", columnDefinition = "TEXT")
+    private String jobDescription;
+
+    @Column(name = "experience_years")
+    private Integer experienceYears;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "start_time")
@@ -40,15 +61,11 @@ public class Interview {
     @Size(max = 255)
     @Column(name = "audio_url")
     private String audioUrl;
+
     @Size(max = 50)
     @ColumnDefault("'in_progress'")
     @Column(name = "status", length = 50)
     private String status;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id")
-    private User user;
 
 /*
  TODO [Reverse Engineering] create field to map the 'duration' column

@@ -14,7 +14,7 @@ import java.util.UUID;
 public record UserDto(
 			UUID id, @Size(max = 255) String name, @Size(max = 255) String email,
 			OffsetDateTime emailVerified, String image,
-			@Size(max = 100) String username, Instant createdAt,
+			Instant createdAt,
 			Set<AccountDto> accounts, Set<InterviewDto> interviews)
 			implements Serializable {
 }
