@@ -12,8 +12,8 @@ import java.util.UUID;
 public record InterviewDto(
 		UUID id,
 		String userId,
-		String topicName,
-		String languageName,
+		String topicId,
+		String languageId,
 		String difficultyLevel,
 		String jobDescription,
 		Integer experienceYears,

@@ -92,8 +92,8 @@ public class InterviewController {
 			InterviewDto interviewDto = new InterviewDto(
 				null, // id will be generated
 				createRequest.userId,
-				createRequest.selectedTopic,
-				createRequest.programmingLanguage,
+				createRequest.selectedTopicId,
+				createRequest.programmingLanguageId,
 				createRequest.difficultyLevel,
 				createRequest.jobDescription,
 				createRequest.yearsOfExperience,
@@ -139,8 +139,8 @@ public class InterviewController {
 	// Request DTO for parsing JSON data
 	public static class InterviewCreateRequest {
 		public String userId;
-		public String selectedTopic;
-		public String programmingLanguage;
+		public String selectedTopicId;
+		public String programmingLanguageId;
 		public String difficultyLevel;
 		public String jobDescription;
 		public Integer yearsOfExperience;

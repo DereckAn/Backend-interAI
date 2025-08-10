@@ -40,7 +40,7 @@ public class User {
 
 	@Enumerated(EnumType.STRING)
 	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
-	@Column(name = "role", nullable = false, columnDefinition = "authrole")
+	@Column(name = "role", nullable = false, columnDefinition = "AuthRole")
 	private AuthRole role = AuthRole.USER;
 
 //	@Size(max = 100)

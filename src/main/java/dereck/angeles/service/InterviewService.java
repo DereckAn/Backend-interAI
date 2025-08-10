@@ -36,14 +36,14 @@ public class InterviewService {
             throw new RuntimeException("User not found");
         }
 
-        Topic topic = topicRepository.findByName(interviewDto.topicName());
+        Topic topic = topicRepository.findById(UUID.fromString(interviewDto.topicId()));
         if (topic == null) {
-            throw new RuntimeException("Topic not found: " + interviewDto.topicName());
+            throw new RuntimeException("Topic not found: " + interviewDto.topicId());
         }
 
-        Language language = languageRepository.findByName(interviewDto.languageName());
+        Language language = languageRepository.findById(UUID.fromString(interviewDto.languageId()));
         if (language == null) {
-            throw new RuntimeException("Language not found: " + interviewDto.languageName());
+            throw new RuntimeException("Language not found: " + interviewDto.languageId());
         }
 
         Difficulty difficulty = difficultyRepository.findByLevel(interviewDto.difficultyLevel());
