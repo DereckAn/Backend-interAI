@@ -38,14 +38,12 @@ public class User {
 	@Column(name = "image", length = 1000)
 	private String image;
 
-	@Enumerated(EnumType.STRING)
-	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
-	@Column(name = "role", nullable = false, columnDefinition = "AuthRole")
-	private AuthRole role = AuthRole.USER;
-
-//	@Size(max = 100)
-//	@Column(name = "username", unique = true, length = 100)
-//	private String username;
+//	@Enumerated(EnumType.STRING)
+//	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Enumerated(EnumType.ORDINAL)
+	@ColumnDefault("0")
+	@Column(name = "role")
+	private AuthRole role;
 
 	@Column(name = "password")
 	private String password;

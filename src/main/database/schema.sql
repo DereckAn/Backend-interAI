@@ -204,7 +204,7 @@ VALUES ('Fullstack',
         'Preguntas sobre desarrollo de videojuegos, motores de juegos como Unity y Unreal Engine, diseño de juegos, y programación de juegos.');
 
 INSERT INTO languages (name)
-VALUES ('Java'),
+    VALUES ('Java'),
        ('Python'),
        ('JavaScript'),
        ('Ruby'),

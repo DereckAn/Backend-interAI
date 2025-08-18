@@ -17,6 +17,7 @@ import java.util.UUID;
 @Table(name = "difficulties")
 public class Difficulty {
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@ColumnDefault("uuid_generate_v4()")
 	@Column(name = "id", nullable = false)
 	private UUID id;
