@@ -18,8 +18,8 @@ public class DifficultyRepository implements PanacheRepositoryBase<Difficulty, U
             case "Junior":
                 enumLevel = Difficulty.DifficultyLevel.Junior;
                 break;
-            case "Mid-Level":  // Frontend sends "Mid-Level"
-                enumLevel = Difficulty.DifficultyLevel.MidLevel;  // But enum is "MidLevel"
+            case "MidLevel":  // Frontend now sends "MidLevel"
+                enumLevel = Difficulty.DifficultyLevel.MidLevel;  // Database stores "MidLevel"
                 break;
             case "Senior":
                 enumLevel = Difficulty.DifficultyLevel.Senior;
@@ -28,7 +28,7 @@ public class DifficultyRepository implements PanacheRepositoryBase<Difficulty, U
                 return null;
         }
         
-        // Query by enum value directly
+        // Query by enum value - this should work correctly now
         List<Difficulty> difficulties = find("level", enumLevel).list();
         return difficulties.isEmpty() ? null : difficulties.get(0);
     }

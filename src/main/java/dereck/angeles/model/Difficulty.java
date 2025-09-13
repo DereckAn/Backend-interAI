@@ -35,9 +35,11 @@ public class Difficulty {
 	private Integer yearsOfExperience;
 
 	public enum DifficultyLevel {
+		@JsonProperty("Junior")
 		Junior,
-		@JsonProperty("Mid-Level")
+		@JsonProperty("MidLevel")
 		MidLevel,
+		@JsonProperty("Senior")
 		Senior
 	}
 

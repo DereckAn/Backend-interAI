@@ -220,7 +220,7 @@ INSERT INTO languages (name)
 INSERT INTO difficulties (level, description)
 VALUES ('Junior',
         'Preguntas básicas y fundamentales para desarrolladores principiantes. Ideal para aquellos que están comenzando en el campo y necesitan construir una base sólida.'),
-       ('Mid-Level',
+       ('MidLevel',
         'Preguntas intermedias que requieren un conocimiento más profundo de los conceptos y herramientas. Ideal para desarrolladores con experiencia en proyectos prácticos.'),
        ('Senior',
         'Preguntas avanzadas y complejas para expertos en el campo. Ideal para aquellos que tienen años de experiencia y buscan desafíos técnicos más difíciles.');
