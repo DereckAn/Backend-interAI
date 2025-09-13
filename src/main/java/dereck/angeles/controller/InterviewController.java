@@ -38,12 +38,17 @@ public class InterviewController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
 	public Response createInterview(MultipartFormDataInput input) {
+		System.out.println("🚀 Interview creation request received!");
+		System.out.println("📝 Request content type: multipart/form-data");
+		
 		try {
 			Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+			System.out.println("📦 Form parts received: " + uploadForm.keySet());
 
 			// Extract JSON data
 			List<InputPart> dataParts = uploadForm.get("data");
 			if (dataParts == null || dataParts.isEmpty()) {
+				System.err.println("❌ Missing 'data' field in form");
 				return Response.status(Response.Status.BAD_REQUEST)
 						.entity("{\"error\": \"Missing data field\"}")
 						.build();
@@ -56,6 +61,7 @@ public class InterviewController {
 			// Handle resume file upload if present
 			String resumeFileId = null;
 			List<InputPart> resumeParts = uploadForm.get("resume");
+			System.out.println("📁 Resume parts: " + (resumeParts != null ? resumeParts.size() + " found" : "none"));
 			if (resumeParts != null && !resumeParts.isEmpty()) {
 				InputPart resumePart = resumeParts.get(0);
 				String filename = getFileName(resumePart);

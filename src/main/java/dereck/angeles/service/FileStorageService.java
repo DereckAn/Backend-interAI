@@ -49,15 +49,44 @@ public class FileStorageService {
 
     @PostConstruct
     public void init() {
-        // Create bucket if it doesn't exist
+        // Test S3 client connection and create bucket if it doesn't exist
+        testS3Connection();
         createBucketIfNotExists();
+    }
+
+    private void testS3Connection() {
+        try {
+            System.out.println("🔍 Testing S3/MinIO connection...");
+            // Test connection by listing buckets
+            ListBucketsResponse response = s3Client.listBuckets();
+            System.out.println("✅ S3/MinIO connection successful");
+            System.out.println("📦 Found " + response.buckets().size() + " existing buckets:");
+            for (software.amazon.awssdk.services.s3.model.Bucket bucket : response.buckets()) {
+                System.out.println("  - " + bucket.name());
+            }
+        } catch (Exception e) {
+            System.err.println("❌ S3/MinIO connection failed: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void createBucketIfNotExists() {
         try {
+            System.out.println("🔍 Checking if bucket '" + bucketName + "' exists...");
             s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+            System.out.println("✅ Bucket '" + bucketName + "' already exists");
         } catch (NoSuchBucketException e) {
-            s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+            try {
+                System.out.println("🔧 Creating bucket '" + bucketName + "'...");
+                s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+                System.out.println("✅ Successfully created bucket '" + bucketName + "'");
+            } catch (Exception createException) {
+                System.err.println("❌ Failed to create bucket '" + bucketName + "': " + createException.getMessage());
+                createException.printStackTrace();
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error checking bucket '" + bucketName + "': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -81,6 +110,8 @@ public class FileStorageService {
             String storedFilename = generateUniqueFilename(originalFilename);
 
             // Upload to MinIO
+            System.out.println("🔧 Uploading file to MinIO: " + storedFilename + " (size: " + fileSize + " bytes)");
+            
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(storedFilename)
@@ -88,7 +119,8 @@ public class FileStorageService {
                     .contentLength(fileSize)
                     .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fileInputStream, fileSize));
+            PutObjectResponse putResponse = s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(fileInputStream, fileSize));
+            System.out.println("✅ File uploaded successfully to MinIO. ETag: " + putResponse.eTag());
 
             // Get user entity
             UUID userUuid = UUID.fromString(userId);
@@ -184,23 +216,34 @@ public class FileStorageService {
     }
 
     private FileUploadResponseDto validateFile(String filename, String contentType, Long fileSize, File.FileType fileType) {
+        System.out.println("🔍 Validating file: " + filename + " (type: " + contentType + ", size: " + fileSize + " bytes, fileType: " + fileType + ")");
+        
         // Check file size
         if (fileSize > maxFileSize) {
+            System.err.println("❌ File size validation failed: " + fileSize + " > " + maxFileSize);
             return FileUploadResponseDto.error("File size exceeds maximum allowed size of " + (maxFileSize / 1024 / 1024) + "MB");
         }
 
         // Check content type based on file type
         Set<String> allowedTypes = fileType == File.FileType.RESUME ? ALLOWED_RESUME_TYPES : ALLOWED_JOB_DESC_TYPES;
+        System.out.println("📋 Allowed types for " + fileType + ": " + allowedTypes);
         
-        if (!allowedTypes.contains(contentType)) {
-            return FileUploadResponseDto.error("File type not allowed for " + fileType.name().toLowerCase());
+        // Extract the base content type (without charset or other parameters)
+        String baseContentType = contentType.split(";")[0].trim();
+        System.out.println("🔍 Base content type: '" + baseContentType + "' (original: '" + contentType + "')");
+        
+        if (!allowedTypes.contains(baseContentType)) {
+            System.err.println("❌ Content type validation failed: '" + baseContentType + "' not in " + allowedTypes);
+            return FileUploadResponseDto.error("File type not allowed for " + fileType.name().toLowerCase() + ". Received: " + baseContentType);
         }
 
         // Check filename
         if (filename == null || filename.trim().isEmpty()) {
+            System.err.println("❌ Filename validation failed: empty filename");
             return FileUploadResponseDto.error("Filename cannot be empty");
         }
 
+        System.out.println("✅ File validation passed for " + filename);
         return FileUploadResponseDto.success(null);
     }
 

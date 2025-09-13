@@ -88,6 +88,10 @@ public class DataInitializationService {
     }
 
     private void initializeDifficulties() {
+        // First, clean up any existing difficulties to avoid duplicates
+        difficultyRepository.deleteAll();
+        System.out.println("Cleaned up existing difficulty data");
+        
         List<DifficultyData> difficultiesData = Arrays.asList(
             new DifficultyData(Difficulty.DifficultyLevel.Junior, "Basic and fundamental questions for beginner developers. Ideal for those starting in the field and needing to build a solid foundation."),
             new DifficultyData(Difficulty.DifficultyLevel.MidLevel, "Intermediate questions requiring deeper knowledge of concepts and tools. Ideal for developers with experience in practical projects."),
@@ -95,15 +99,14 @@ public class DataInitializationService {
         );
 
         for (DifficultyData difficultyData : difficultiesData) {
-            // Convert enum to string for the repository method
+            // Convert enum to the expected frontend string format
             String levelString = difficultyData.level == Difficulty.DifficultyLevel.MidLevel ? "Mid-Level" : difficultyData.level.name();
-            if (difficultyRepository.findByLevel(levelString) == null) {
-                Difficulty difficulty = new Difficulty();
-                difficulty.setLevel(difficultyData.level);
-                difficulty.setDescription(difficultyData.description);
-                difficultyRepository.persist(difficulty);
-                System.out.println("Created difficulty: " + levelString);
-            }
+            
+            Difficulty difficulty = new Difficulty();
+            difficulty.setLevel(difficultyData.level);
+            difficulty.setDescription(difficultyData.description);
+            difficultyRepository.persist(difficulty);
+            System.out.println("Created difficulty: " + levelString);
         }
     }
 

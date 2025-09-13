@@ -11,11 +11,25 @@ import java.util.UUID;
 public class DifficultyRepository implements PanacheRepositoryBase<Difficulty, UUID> {
 
     public Difficulty findByLevel(String level) {
-        // Query by level name string as stored in database instead of enum
-        List<Difficulty> difficulties = getEntityManager()
-                .createQuery("SELECT d FROM Difficulty d WHERE CAST(d.level AS STRING) = :level", Difficulty.class)
-                .setParameter("level", level)
-                .getResultList();
+        // Convert frontend level string to enum for database lookup
+        Difficulty.DifficultyLevel enumLevel;
+        
+        switch (level) {
+            case "Junior":
+                enumLevel = Difficulty.DifficultyLevel.Junior;
+                break;
+            case "Mid-Level":  // Frontend sends "Mid-Level"
+                enumLevel = Difficulty.DifficultyLevel.MidLevel;  // But enum is "MidLevel"
+                break;
+            case "Senior":
+                enumLevel = Difficulty.DifficultyLevel.Senior;
+                break;
+            default:
+                return null;
+        }
+        
+        // Query by enum value directly
+        List<Difficulty> difficulties = find("level", enumLevel).list();
         return difficulties.isEmpty() ? null : difficulties.get(0);
     }
 }
