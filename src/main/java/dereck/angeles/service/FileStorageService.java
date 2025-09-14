@@ -21,8 +21,21 @@ import java.util.*;
 @ApplicationScoped
 public class FileStorageService {
 
-    @ConfigProperty(name = "minio.bucket-name")
-    String bucketName;
+    // Enterprise Bucket Configuration
+    @ConfigProperty(name = "minio.bucket.user-resumes")
+    String userResumesBucket;
+    
+    @ConfigProperty(name = "minio.bucket.interview-recordings")
+    String interviewRecordingsBucket;
+    
+    @ConfigProperty(name = "minio.bucket.user-avatars")
+    String userAvatarsBucket;
+    
+    @ConfigProperty(name = "minio.bucket.system-assets")
+    String systemAssetsBucket;
+    
+    @ConfigProperty(name = "minio.bucket.temp-uploads")
+    String tempUploadsBucket;
 
     @ConfigProperty(name = "app.file.upload.max-size", defaultValue = "10485760") // 10MB in bytes
     Long maxFileSize;
@@ -49,9 +62,9 @@ public class FileStorageService {
 
     @PostConstruct
     public void init() {
-        // Test S3 client connection and create bucket if it doesn't exist
+        // Test S3 client connection and create all enterprise buckets
         testS3Connection();
-        createBucketIfNotExists();
+        createEnterpriseBuckets();
     }
 
     private void testS3Connection() {
@@ -70,7 +83,26 @@ public class FileStorageService {
         }
     }
 
-    private void createBucketIfNotExists() {
+    private void createEnterpriseBuckets() {
+        System.out.println("🏗️ Initializing enterprise bucket architecture...");
+        
+        // List of all enterprise buckets
+        String[] buckets = {
+            userResumesBucket,
+            interviewRecordingsBucket,
+            userAvatarsBucket,
+            systemAssetsBucket,
+            tempUploadsBucket
+        };
+        
+        for (String bucketName : buckets) {
+            createBucketIfNotExists(bucketName);
+        }
+        
+        System.out.println("✅ Enterprise bucket architecture initialized successfully");
+    }
+    
+    private void createBucketIfNotExists(String bucketName) {
         try {
             System.out.println("🔍 Checking if bucket '" + bucketName + "' exists...");
             s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
@@ -89,6 +121,36 @@ public class FileStorageService {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Enterprise method: Select appropriate bucket based on file type
+     */
+    private String getBucketForFileType(File.FileType fileType) {
+        return switch (fileType) {
+            case RESUME -> userResumesBucket;
+            case INTERVIEW_RECORDING -> interviewRecordingsBucket;
+            case USER_AVATAR -> userAvatarsBucket;
+            case SYSTEM_ASSET -> systemAssetsBucket;
+            case TEMP_FILE -> tempUploadsBucket;
+            default -> userResumesBucket; // Fallback
+        };
+    }
+    
+    /**
+     * Enterprise method: Generate hierarchical object key with user prefix
+     */
+    private String generateEnterpriseObjectKey(File.FileType fileType, String userId, String filename) {
+        String timestamp = java.time.Instant.now().toString().replaceAll("[:.]", "-");
+        
+        return switch (fileType) {
+            case RESUME -> String.format("users/%s/resumes/%s_%s", userId, timestamp, filename);
+            case INTERVIEW_RECORDING -> String.format("interviews/%s/recordings/%s_%s", userId, timestamp, filename);
+            case USER_AVATAR -> String.format("users/%s/avatars/%s_%s", userId, timestamp, filename);
+            case SYSTEM_ASSET -> String.format("system/assets/%s_%s", timestamp, filename);
+            case TEMP_FILE -> String.format("temp/%s/%s_%s", userId, timestamp, filename);
+            default -> String.format("misc/%s/%s_%s", userId, timestamp, filename);
+        };
+    }
 
     @Transactional
     public FileUploadResponseDto uploadFile(
@@ -106,15 +168,16 @@ public class FileStorageService {
                 return validationResult;
             }
 
-            // Generate unique filename
-            String storedFilename = generateUniqueFilename(originalFilename);
+            // Enterprise: Select appropriate bucket and generate hierarchical object key
+            String targetBucket = getBucketForFileType(fileType);
+            String enterpriseObjectKey = generateEnterpriseObjectKey(fileType, userId, originalFilename);
 
-            // Upload to MinIO
-            System.out.println("🔧 Uploading file to MinIO: " + storedFilename + " (size: " + fileSize + " bytes)");
+            // Upload to MinIO with enterprise organization
+            System.out.println("🏗️ Enterprise Upload - Bucket: " + targetBucket + ", Key: " + enterpriseObjectKey + " (" + fileSize + " bytes)");
             
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(storedFilename)
+                    .bucket(targetBucket)
+                    .key(enterpriseObjectKey)
                     .contentType(contentType)
                     .contentLength(fileSize)
                     .build();
@@ -129,13 +192,13 @@ public class FileStorageService {
                 return FileUploadResponseDto.error("User not found");
             }
             
-            // Save metadata to database
+            // Save metadata to database with enterprise organization
             File file = File.builder()
                     .originalFilename(originalFilename)
-                    .storedFilename(storedFilename)
+                    .storedFilename(enterpriseObjectKey) // Hierarchical path with user prefix
                     .contentType(contentType)
                     .fileSize(fileSize)
-                    .bucketName(bucketName)
+                    .bucketName(targetBucket) // Appropriate enterprise bucket
                     .fileType(fileType)
                     .user(user)
                     .build();
@@ -157,10 +220,19 @@ public class FileStorageService {
         return fileRepository.findByIdOptional(uuid);
     }
 
-    public InputStream downloadFile(String storedFilename) {
+    public InputStream downloadFile(String fileId) {
+        UUID uuid = UUID.fromString(fileId);
+        Optional<File> fileOptional = fileRepository.findByIdOptional(uuid);
+        
+        if (fileOptional.isEmpty()) {
+            throw new RuntimeException("File not found: " + fileId);
+        }
+        
+        File file = fileOptional.get();
+        
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(storedFilename)
+                .bucket(file.getBucketName()) // Use stored bucket name (enterprise or legacy)
+                .key(file.getStoredFilename()) // Use stored key (hierarchical or legacy)
                 .build();
 
         return s3Client.getObject(getObjectRequest);
@@ -175,10 +247,10 @@ public class FileStorageService {
             File file = fileOptional.get();
             
             try {
-                // Delete from MinIO
+                // Delete from MinIO (works with both enterprise and legacy buckets)
                 DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(file.getStoredFilename())
+                        .bucket(file.getBucketName()) // Use stored bucket name
+                        .key(file.getStoredFilename()) // Use stored key
                         .build();
                 
                 s3Client.deleteObject(deleteObjectRequest);

@@ -53,7 +53,18 @@ public class File {
     }
     
     public enum FileType {
+        // User-generated content
         RESUME,
-        JOB_DESCRIPTION
+        JOB_DESCRIPTION,
+        USER_AVATAR,
+        
+        // Interview-related files
+        INTERVIEW_RECORDING,
+        
+        // System files
+        SYSTEM_ASSET,
+        
+        // Temporary files
+        TEMP_FILE
     }
 }
